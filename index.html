@@ -131,7 +131,6 @@ function renderTabel(){
   updateYangDipanggil();
 }
 
-// TEKAN TAHAN: ISI YG KOSONG SAJA JADI ✓
 function startHold(e){
   holdActive = false;
   let el = e.target;
@@ -149,18 +148,14 @@ function endHold(e){
 }
 
 function isiYangKosong(){
-  let count = 0;
   document.querySelectorAll(".absen").forEach((el, i)=>{
-    if(el.innerText === ""){ // cuma isi yg masih kosong
+    if(el.innerText === ""){
       el.innerText = "✓";
       el.className = "absen cek";
       document.getElementById(`nama-${i}`).className = "nama cek";
-      count++;
     }
   });
   updateYangDipanggil();
-  if(count > 0) alert(`${count} siswa diisi Hadir ✓`);
-  else alert("Semua sudah diisi");
 }
 
 function toggleAbsen(el){
@@ -201,10 +196,7 @@ function kirimWA(){
     if(ket === "S") listS.push(`${i+1}. ${siswa[i].nama}`);
   });
 
-  if(listA.length === 0 && listI.length === 0 && listS.length === 0){
-    alert("Semua siswa Hadir. Tidak ada yang dikirim");
-    return;
-  }
+  if(listA.length === 0 && listI.length === 0 && listS.length === 0) return; // langsung diem
 
   let pesan = `*LAPORAN ABSENSI*\nHari: ${hari}\nTanggal: ${tanggal}\n\n`;
   if(listA.length > 0) pesan += `*ALPHA (${listA.length})*\n${listA.join("\n")}\n\n`;
@@ -217,7 +209,7 @@ function kirimWA(){
 }
 
 function resetAbsen(){
-  if(confirm("Reset semua absensi?")){
+  if(confirm("Reset semua absensi?")){ // INI TETAP NANYA
     document.querySelectorAll(".absen").forEach(el=>{el.innerText = ""; el.className = "absen";});
     document.querySelectorAll(".nama").forEach(el=>{el.className = "nama";});
     updateYangDipanggil();
