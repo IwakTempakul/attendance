@@ -30,18 +30,16 @@
 .absen{display:inline-block; width:42px; height:28px; border:2px solid #1976d2; border-radius:6px; text-align:center; line-height:24px; font-weight:bold; font-size:15px; cursor:pointer; user-select:none; background: rgba(255,255,255,0.8);}
 .absen:active{transform:scale(0.9)}
 
-/* WARNA BARU */
-.absen.cek{color:#00c853; border-color:#00c853} /* ✓ HIJAU */
-.absen.s{color:#ffd700; border-color:#ffd700} /* S KUNING */
-.absen.i{color:#ff8c00; border-color:#ff8c00} /* I ORANYE TERANG */
-.absen.a{color:#ff0000; border-color:#ff0000} /* A MERAH MURNI */
+.absen.cek{color:#00c853; border-color:#00c853}
+.absen.s{color:#f9a825; border-color:#f9a825}
+.absen.i{color:#ff8c00; border-color:#ff8c00}
+.absen.a{color:#ff0000; border-color:#ff0000}
 
 .nama.cek{color:#00c853}
-.nama.s{color:#ffd700}
+.nama.s{color:#f9a825}
 .nama.i{color:#ff8c00}
 .nama.a{color:#ff0000}
 
-/* EFEK KEDIP UNTUK YANG HARUS DIPANGGIL */
 @keyframes kedip{
  0%, 100% { background: rgba(255,255,0,0.3); }
  50% { background: rgba(255,0,0,0.4); }
@@ -51,10 +49,11 @@
   animation: kedip 0.8s infinite;
 }
 
-.footer{margin-top:15px; display:flex; gap:8px; position: sticky; bottom: 0; background: rgba(254,254,254,0.9); padding: 8px 0;}
-  button{flex:1; padding:12px; border:none; border-radius:8px; background:#1976d2; color:white; font-weight:bold; font-size:14px; cursor:pointer;}
+.footer{margin-top:15px; display:flex; gap:8px; position: sticky; bottom: 0; background: rgba(254,254,254,0.9); padding: 8px 0; flex-wrap:wrap;}
+  button{flex:1; min-width:120px; padding:12px; border:none; border-radius:8px; background:#1976d2; color:white; font-weight:bold; font-size:14px; cursor:pointer;}
   button.clear{background:#757575}
   button.save{background:#2e7d32}
+  button.wa{background:#25d366}
 .container{padding-bottom:80px}
 </style>
 </head>
@@ -81,6 +80,7 @@
   <div class="footer">
     <button class="clear" onclick="resetAbsen()">Reset</button>
     <button class="save" onclick="simpanAbsen()">Simpan CSV</button>
+    <button class="wa" onclick="kirimWA()">Kirim Tidak Hadir ke WA</button>
   </div>
 </div>
 
@@ -97,6 +97,7 @@ const namaHari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
 const statusList = ["", "✓", "S", "I", "A"];
 const classList = ["", "cek", "s", "i", "a"];
 const tbody = document.querySelector("#tabelAbsen tbody");
+const NO_WA_TUJUAN = "6281331279791";
 
 function updateHari(){
   let tgl = new Date(document.getElementById("tanggal").value);
@@ -141,6 +142,36 @@ function updateYangDipanggil(){
       break;
     }
   }
+}
+
+// FUNGSI KIRIM WA: A, I, S
+function kirimWA(){
+  let tanggal = document.getElementById("tanggal").value;
+  let hari = document.getElementById("hariIni").innerText;
+  let listA = [], listI = [], listS = [];
+
+  document.querySelectorAll("#tabelAbsen tbody tr").forEach((tr,i)=>{
+    let ket = tr.querySelector(".absen").innerText;
+    if(ket === "A") listA.push(`${i+1}. ${siswa[i].nama}`);
+    if(ket === "I") listI.push(`${i+1}. ${siswa[i].nama}`);
+    if(ket === "S") listS.push(`${i+1}. ${siswa[i].nama}`);
+  });
+
+  if(listA.length === 0 && listI.length === 0 && listS.length === 0){
+    alert("Semua siswa Hadir. Tidak ada yang dikirim");
+    return;
+  }
+
+  let pesan = `*LAPORAN ABSENSI*\nHari: ${hari}\nTanggal: ${tanggal}\n\n`;
+
+  if(listA.length > 0) pesan += `*ALPHA (${listA.length})*\n${listA.join("\n")}\n\n`;
+  if(listI.length > 0) pesan += `*IZIN (${listI.length})*\n${listI.join("\n")}\n\n`;
+  if(listS.length > 0) pesan += `*SAKIT (${listS.length})*\n${listS.join("\n")}\n\n`;
+
+  pesan += `Total Tidak Hadir: ${listA.length + listI.length + listS.length}`;
+
+  let url = `https://wa.me/${NO_WA_TUJUAN}?text=${encodeURIComponent(pesan)}`;
+  window.open(url, "_blank");
 }
 
 function resetAbsen(){
