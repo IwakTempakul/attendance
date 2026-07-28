@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Absensi HP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family: "Comic Sans MS", "Segoe UI", sans-serif;
+    background: #fefefe;
+    background-image:
+      linear-gradient(to right, #ffdddd 38px, transparent 38px),
+      repeating-linear-gradient(to bottom, #fefefe, #fefefe 27px, #cce4ff 28px);
+    padding: 10px;
+    color:#111;
+  }
+  h1{text-align: center; font-size: 18px; margin: 8px 0 4px; color: #0d47a1;}
+ .info{text-align:center; margin-bottom:12px; font-size:14px; font-weight:bold;}
+  input[type=date]{padding:4px 8px; border:1px solid #1976d2; border-radius:4px; font-size:13px; background:rgba(255,255,255,0.7);}
+  table{width: 100%; border-collapse: collapse; font-size: 14px; background: transparent;}
+  thead{background: rgba(25, 118, 210, 0.9); color: white; position: sticky; top: 0; z-index: 2;}
+  th, td{padding: 6px 4px; border: none; text-align: left; line-height: 28px;}
+  th{text-align:center; font-size:12px}
+  td:nth-child(1){width:32px; text-align:center; font-weight:bold}
+  td:nth-child(3){font-size:11px; color:#444}
+  td:nth-child(4){width:60px; text-align:center}
+ .absen{display:inline-block; width:42px; height:28px; border:2px solid #1976d2; border-radius:6px; text-align:center; line-height:24px; font-weight:bold; font-size:15px; cursor:pointer; user-select:none; background: rgba(255,255,255,0.8);}
+ .absen:active{transform:scale(0.9)}
+ .absen.cek{color:#2e7d32; border-color:#2e7d32}
+ .absen.s{color:#f9a825; border-color:#f9a825}
+ .absen.i{color:#fb8c00; border-color:#fb8c00}
+ .absen.a{color:#d32f2f; border-color:#d32f2f}
+ .footer{margin-top:15px; display:flex; gap:8px; position: sticky; bottom: 0; background: rgba(254,254,254,0.9); padding: 8px 0;}
+  button{flex:1; padding:12px; border:none; border-radius:8px; background:#1976d2; color:white; font-weight:bold; font-size:14px; cursor:pointer;}
+  button.clear{background:#757575}
+  button.save{background:#2e7d32}
+ .container{padding-bottom:80px}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>DAFTAR HADIR</h1>
+  <div class="info">
+    <span id="hariIni"></span> <!-- KOMANYA UDAH DIHAPUS -->
+    <input type="date" id="tanggal" onchange="updateHari()">
+  </div>
+
+  <table id="tabelAbsen">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama</th>
+        <th>NISN</th>
+        <th>K</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="footer">
+    <button class="clear" onclick="resetAbsen()">Reset</button>
+    <button class="save" onclick="simpanAbsen()">Simpan CSV</button>
+  </div>
+</div>
+
+<script>
+const siswa = [
+  {nama:"Abdi Fathoni", nisn:"0104869157", nis:"25.07.280"},{nama:"Abdul Wahab", nisn:"0108042266", nis:"25.07.281"},{nama:"Aisyila Kurnia", nisn:"0097299024", nis:"25.07.282"},{nama:"Algius Khoiri Sebastian", nisn:"0092585327", nis:"25.07.284"},{nama:"Amelya Fitri", nisn:"0102929904", nis:"25.07.285"},{nama:"Annesya Febriana Dwi Wulandari F", nisn:"0098900564", nis:"25.07.287"},{nama:"Azriel Zailani", nisn:"0105883250", nis:"25.07.288"},{nama:"Bastian Efendi", nisn:"0093421026", nis:"25.07.289"},{nama:"Chila Nafisah Putri", nisn:"0099363380", nis:"25.07.290"},{nama:"Dennisa Serfiani", nisn:"0109881588", nis:"25.07.291"},{nama:"Dewi Nur Maharani", nisn:"0105107730", nis:"25.07.292"},{nama:"Fadhilah Nur Fauziyyah", nisn:"0102087487", nis:"25.07.293"},{nama:"Fatimah Zahra", nisn:"0102250830", nis:"25.07.294"},{nama:"Kartika Eka Pratiwi", nisn:"0101398792", nis:"25.07.295"},{nama:"M. Abid Dhafullah Fahrul", nisn:"0105979742", nis:"25.07.296"},{nama:"Maria Sinta Bela", nisn:"3095821018", nis:"25.07.316"},{nama:"Maulida Nadjhua", nisn:"0106688938", nis:"25.07.297"},{nama:"Meylan Sari", nisn:"0108549191", nis:"25.07.299"},{nama:"Muhammad Daffa Hafidz Dzaki Pa", nisn:"3100367548", nis:"25.07.300"},{nama:"Muhammad Rajabil Rahman", nisn:"3103015695", nis:"25.07.301"},{nama:"Muhammad Reno Pratama Putra", nisn:"0098326078", nis:"25.07.302"},{nama:"Muhammad Ridho", nisn:"0095957550", nis:"25.07.303"},{nama:"Natasya Aulia Anggraeni", nisn:"0107401051", nis:"25.07.304"},{nama:"Nur Syabila", nisn:"0103550113", nis:"25.07.305"},{nama:"Putri Nur Azizah", nisn:"0103291012", nis:"25.07.306"},{nama:"Respati Rangga Kienoya", nisn:"0109221694", nis:"25.07.307"},{nama:"Reynold Nathanael Ziliwu", nisn:"0101651707", nis:"25.07.308"},{nama:"Rezqy Akbar Prasetyo", nisn:"0099872708", nis:"25.07.309"},{nama:"Rizky Mahendra Simamora", nisn:"0109865052", nis:"25.07.310"},{nama:"Steven Imanuel Yudhistira", nisn:"0096819702", nis:"25.07.311"},{nama:"Veronica Juanita Dastin", nisn:"0107685367", nis:"25.07.312"},{nama:"Yuniar Qolby", nisn:"0103669167", nis:"25.07.314"},{nama:"Zhaky Andra Dinata", nisn:"0097369411", nis:"25.07.315"}
+];
+
+const namaHari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+const statusList = ["", "✓", "S", "I", "A"];
+const classList = ["", "cek", "s", "i", "a"];
+const tbody = document.querySelector("#tabelAbsen tbody");
+
+function updateHari(){
+  let tgl = new Date(document.getElementById("tanggal").value);
+  document.getElementById("hariIni").innerText = namaHari[tgl.getDay()];
+}
+function renderTabel(){
+  tbody.innerHTML = "";
+  siswa.forEach((s, i)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${i+1}</td><td>${s.nama}</td><td>${s.nisn}</td><td><div class="absen" data-index="${i}" onclick="toggleAbsen(this)"></div></td>`;
+    tbody.appendChild(tr);
+  });
+}
+function toggleAbsen(el){
+  let current = el.innerText;
+  let currentIndex = statusList.indexOf(current);
+  let nextIndex = (currentIndex + 1) % statusList.length;
+  el.innerText = statusList[nextIndex];
+  el.className = "absen " + classList[nextIndex];
+}
+function resetAbsen(){
+  if(confirm("Reset semua absensi?")){
+    document.querySelectorAll(".absen").forEach(el=>{el.innerText = ""; el.className = "absen";});
+  }
+}
+function simpanAbsen(){
+  let tanggal = document.getElementById("tanggal").value || "tanpa-tanggal";
+  let hari = document.getElementById("hariIni").innerText;
+  let csv = `Hari,${hari}\nTanggal,${tanggal}\n\nNo,Nama,NISN,NIS,Keterangan\n`;
+  document.querySelectorAll("#tabelAbsen tbody tr").forEach((tr,i)=>{
+    let ket = tr.querySelector(".absen").innerText || "-";
+    csv += `${i+1},"${siswa[i].nama}",${siswa[i].nisn},${siswa[i].nis},${ket}\n`;
+  });
+  let blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
+  let link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `Absensi_${hari}_${tanggal}.csv`;
+  link.click();
+}
+document.getElementById("tanggal").valueAsDate = new Date();
+updateHari();
+renderTabel();
+</script>
+</body>
+</html>
