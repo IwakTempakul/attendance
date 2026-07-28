@@ -98,6 +98,7 @@ const namaHari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
 const statusList = ["", "✓", "S", "I", "A"];
 const classList = ["", "cek", "s", "i", "a"];
 const tbody = document.querySelector("#tabelAbsen tbody");
+const NO_WA_TUJUAN = "6281331279791"; // 081331279791
 
 let holdTimer = null;
 let holdActive = false;
@@ -196,7 +197,7 @@ function kirimWA(){
     if(ket === "S") listS.push(`${i+1}. ${siswa[i].nama}`);
   });
 
-  if(listA.length === 0 && listI.length === 0 && listS.length === 0) return; // langsung diem
+  if(listA.length === 0 && listI.length === 0 && listS.length === 0) return;
 
   let pesan = `*LAPORAN ABSENSI*\nHari: ${hari}\nTanggal: ${tanggal}\n\n`;
   if(listA.length > 0) pesan += `*ALPHA (${listA.length})*\n${listA.join("\n")}\n\n`;
@@ -204,12 +205,12 @@ function kirimWA(){
   if(listS.length > 0) pesan += `*SAKIT (${listS.length})*\n${listS.join("\n")}\n\n`;
   pesan += `Total Tidak Hadir: ${listA.length + listI.length + listS.length}`;
 
-  let url = `https://wa.me/?text=${encodeURIComponent(pesan)}`;
+  let url = `https://wa.me/${NO_WA_TUJUAN}?text=${encodeURIComponent(pesan)}`;
   window.open(url, "_blank");
 }
 
 function resetAbsen(){
-  if(confirm("Reset semua absensi?")){ // INI TETAP NANYA
+  if(confirm("Reset semua absensi?")){
     document.querySelectorAll(".absen").forEach(el=>{el.innerText = ""; el.className = "absen";});
     document.querySelectorAll(".nama").forEach(el=>{el.className = "nama";});
     updateYangDipanggil();
