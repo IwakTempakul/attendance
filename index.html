@@ -16,8 +16,8 @@
     color:#111;
   }
   h1{text-align: center; font-size: 18px; margin: 8px 0 4px; color: #0d47a1;}
-.info{text-align:center; margin-bottom:12px; font-size:14px; font-weight:bold;}
-  input[type=date]{padding:4px 8px; border:1px solid #1976d2; border-radius:4px; font-size:13px; background:rgba(255,255,255,0.7);}
+.info{text-align:center; margin-bottom:12px; font-size:14px; font-weight:bold; cursor:pointer;}
+  input[type=date]{position:absolute; opacity:0; width:0; height:0;}
   table{width: 100%; border-collapse: collapse; font-size: 14px; background: transparent;}
   thead{background: rgba(25, 118, 210, 0.9); color: white; position: sticky; top: 0; z-index: 2;}
   th, td{padding: 6px 4px; border: none; text-align: left; line-height: 28px;}
@@ -61,8 +61,9 @@
 <body>
 <div class="container">
   <h1>DAFTAR HADIR</h1>
-  <div class="info">
-    <span id="hariIni"></span>
+  <div class="info" onclick="document.getElementById('tanggal').click()">
+    <span id="hariIni"></span>,
+    <span id="tanggalIndo"></span>
     <input type="date" id="tanggal" onchange="updateHari()">
   </div>
 
@@ -94,7 +95,10 @@ const siswa = [
   {nama:"Azriel Zailani", nisn:"0105883250", nis:"25.07.288"},{nama:"Bastian Efendi", nisn:"0093421026", nis:"25.07.289"},{nama:"Chila Nafisah Putri", nisn:"0099363380", nis:"25.07.290"},{nama:"Dennisa Serfiani", nisn:"0109881588", nis:"25.07.291"},{nama:"Dewi Nur Maharani", nisn:"0105107730", nis:"25.07.292"},{nama:"Fadhilah Nur Fauziyyah", nisn:"0102087487", nis:"25.07.293"},{nama:"Fatimah Zahra", nisn:"0102250830", nis:"25.07.294"},{nama:"Kartika Eka Pratiwi", nisn:"0101398792", nis:"25.07.295"},{nama:"M. Abid Dhafullah Fahrul", nisn:"0105979742", nis:"25.07.296"},{nama:"Maria Sinta Bela", nisn:"3095821018", nis:"25.07.316"},{nama:"Maulida Nadjhua", nisn:"0106688938", nis:"25.07.297"},{nama:"Meylan Sari", nisn:"0108549191", nis:"25.07.299"},{nama:"Muhammad Daffa Hafidz Dzaki Pa", nisn:"3100367548", nis:"25.07.300"},{nama:"Muhammad Rajabil Rahman", nisn:"3103015695", nis:"25.07.301"},{nama:"Muhammad Reno Pratama Putra", nisn:"0098326078", nis:"25.07.302"},{nama:"Muhammad Ridho", nisn:"0095957550", nis:"25.07.303"},{nama:"Natasya Aulia Anggraeni", nisn:"0107401051", nis:"25.07.304"},{nama:"Nur Syabila", nisn:"0103550113", nis:"25.07.305"},{nama:"Putri Nur Azizah", nisn:"0103291012", nis:"25.07.306"},{nama:"Respati Rangga Kienoya", nisn:"0109221694", nis:"25.07.307"},{nama:"Reynold Nathanael Ziliwu", nisn:"0101651707", nis:"25.07.308"},{nama:"Rezqy Akbar Prasetyo", nisn:"0099872708", nis:"25.07.309"},{nama:"Rizky Mahendra Simamora", nisn:"0109865052", nis:"25.07.310"},{nama:"Steven Imanuel Yudhistira", nisn:"0096819702", nis:"25.07.311"},{nama:"Veronica Juanita Dastin", nisn:"0107685367", nis:"25.07.312"},{nama:"Yuniar Qolby", nisn:"0103669167", nis:"25.07.314"},{nama:"Zhaky Andra Dinata", nisn:"0097369411", nis:"25.07.315"}
 ];
 
+// DAFTAR NAMA BULAN & HARI INDONESIA
 const namaHari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+const namaBulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
 const statusList = ["", "✓", "S", "I", "A"];
 const classList = ["", "cek", "s", "i", "a"];
 const tbody = document.querySelector("#tabelAbsen tbody");
@@ -103,9 +107,21 @@ const NO_WA_TUJUAN = "6281331279791"; // 081331279791
 let holdTimer = null;
 let holdActive = false;
 
+// FORMAT TANGGAL KE BAHASA INDONESIA LENGKAP
+function formatTanggalIndo(tglString){
+  if(!tglString) return "-";
+  let tgl = new Date(tglString);
+  let tanggal = tgl.getDate();
+  let bulan = namaBulan[tgl.getMonth()];
+  let tahun = tgl.getFullYear();
+  return `${tanggal} ${bulan} ${tahun}`;
+}
+
 function updateHari(){
-  let tgl = new Date(document.getElementById("tanggal").value);
+  let tglRaw = document.getElementById("tanggal").value;
+  let tgl = new Date(tglRaw);
   document.getElementById("hariIni").innerText = namaHari[tgl.getDay()];
+  document.getElementById("tanggalIndo").innerText = formatTanggalIndo(tglRaw); // TAMPIL INDO
 }
 function renderTabel(){
   tbody.innerHTML = "";
@@ -186,7 +202,8 @@ function updateYangDipanggil(){
 }
 
 function kirimWA(){
-  let tanggal = document.getElementById("tanggal").value;
+  let tanggalRaw = document.getElementById("tanggal").value;
+  let tanggal = formatTanggalIndo(tanggalRaw); // FORMAT INDO
   let hari = document.getElementById("hariIni").innerText;
   let listA = [], listI = [], listS = [];
 
@@ -199,7 +216,6 @@ function kirimWA(){
 
   let pesan = `*LAPORAN ABSENSI*\nHari: ${hari}\nTanggal: ${tanggal}\n\n`;
 
-  // KALAU HADIR SEMUA
   if(listA.length === 0 && listI.length === 0 && listS.length === 0) {
     pesan += `Hadir semua. ✅`;
   } else {
@@ -221,7 +237,8 @@ function resetAbsen(){
   }
 }
 function simpanAbsen(){
-  let tanggal = document.getElementById("tanggal").value || "tanpa-tanggal";
+  let tanggalRaw = document.getElementById("tanggal").value || "tanpa-tanggal";
+  let tanggal = formatTanggalIndo(tanggalRaw); // FORMAT INDO DI CSV
   let hari = document.getElementById("hariIni").innerText;
   let csv = `Hari,${hari}\nTanggal,${tanggal}\n\nNo,Nama,NISN,NIS,Keterangan\n`;
   document.querySelectorAll("#tabelAbsen tbody tr").forEach((tr,i)=>{
@@ -231,7 +248,7 @@ function simpanAbsen(){
   let blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
   let link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = `Absensi_${hari}_${tanggal}.csv`;
+  link.download = `Absensi_${hari}_${tanggalRaw}.csv`; // nama file tetap pake raw
   link.click();
 }
 document.getElementById("tanggal").valueAsDate = new Date();
