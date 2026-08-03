@@ -140,7 +140,7 @@ function startHold(e){
     holdActive = true;
     isiYangKosong();
     el.classList.remove("hold");
-  }, 2000);
+  }, 1000); // HOLD 1 DETIK
 }
 
 function endHold(e){
@@ -197,13 +197,17 @@ function kirimWA(){
     if(ket === "S") listS.push(`${i+1}. ${siswa[i].nama}`);
   });
 
-  if(listA.length === 0 && listI.length === 0 && listS.length === 0) return;
-
   let pesan = `*LAPORAN ABSENSI*\nHari: ${hari}\nTanggal: ${tanggal}\n\n`;
-  if(listA.length > 0) pesan += `*ALPHA (${listA.length})*\n${listA.join("\n")}\n\n`;
-  if(listI.length > 0) pesan += `*IZIN (${listI.length})*\n${listI.join("\n")}\n\n`;
-  if(listS.length > 0) pesan += `*SAKIT (${listS.length})*\n${listS.join("\n")}\n\n`;
-  pesan += `Total Tidak Hadir: ${listA.length + listI.length + listS.length}`;
+
+  // KALAU HADIR SEMUA
+  if(listA.length === 0 && listI.length === 0 && listS.length === 0) {
+    pesan += `Hadir semua. ✅`;
+  } else {
+    if(listA.length > 0) pesan += `*ALPHA (${listA.length})*\n${listA.join("\n")}\n\n`;
+    if(listI.length > 0) pesan += `*IZIN (${listI.length})*\n${listI.join("\n")}\n\n`;
+    if(listS.length > 0) pesan += `*SAKIT (${listS.length})*\n${listS.join("\n")}\n\n`;
+    pesan += `Total Tidak Hadir: ${listA.length + listI.length + listS.length}`;
+  }
 
   let url = `https://wa.me/${NO_WA_TUJUAN}?text=${encodeURIComponent(pesan)}`;
   window.open(url, "_blank");
